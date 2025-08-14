@@ -1,5 +1,5 @@
-# py -3.13 -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu129
-#pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+#H1ddenZ0ne
+
 import sys
 import pytesseract
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox
@@ -11,18 +11,20 @@ import cv2
 from googletrans import Translator
 import threading
 from queue import Queue
+#H1ddenZ0ne
 
-# مسیر tesseract
+
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-# ===== Overlay قابل تغییر اندازه و جابجایی آزاد با کلیک وسط عبور به بازی =====
+#H1ddenZ0ne
+
 class ResizableOverlay(QWidget):
     HANDLE_SIZE = 12
     def __init__(self, color, default_text, w=800, h=80, y_offset=100):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)  # کل قاب شفاف برای موس
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)  
         screen = QApplication.primaryScreen().availableGeometry()
         x, y = (screen.width() - w)//2, screen.height() - h - y_offset
         self.setGeometry(x, y, w, h)
@@ -34,7 +36,7 @@ class ResizableOverlay(QWidget):
         self.drag_start = QPoint()
         self.rect_start = QRect()
 
-        # برچسب متن وسط
+
         self.label = QLabel(default_text, self)
         font = QFont('Tahoma', 16)
         font.setBold(True)
@@ -42,21 +44,20 @@ class ResizableOverlay(QWidget):
         self.label.setStyleSheet(f"color: white; background-color: rgba(0,0,0,30); padding: 4px;")
         self.label.setWordWrap(True)
         self.label.resize(self.rect.width(), self.rect.height())
-        self.label.setAttribute(Qt.WA_TransparentForMouseEvents, True)  # مهم: عبور کلیک از QLabel
+        self.label.setAttribute(Qt.WA_TransparentForMouseEvents, True)  
         self.color = color
         self.show()
 
-        # دستگیره‌ها برای Resize فعال
         self.handles = []
         for corner in [self.rect.topLeft(), self.rect.topRight(), self.rect.bottomLeft(), self.rect.bottomRight()]:
             handle = QWidget(self)
             handle.setGeometry(corner.x()-self.HANDLE_SIZE//2, corner.y()-self.HANDLE_SIZE//2,
                                self.HANDLE_SIZE, self.HANDLE_SIZE)
             handle.setStyleSheet("background-color: rgba(255,0,0,120);")
-            handle.setAttribute(Qt.WA_TransparentForMouseEvents, False)  # دستگیره‌ها فعال
+            handle.setAttribute(Qt.WA_TransparentForMouseEvents, False)  
             self.handles.append(handle)
 
-    # فقط برای نمایش کادر دور متن
+
     def paintEvent(self, event):
         painter = QPainter(self)
         pen = QPen(QColor(self.color), 3)
@@ -64,7 +65,6 @@ class ResizableOverlay(QWidget):
         painter.setBrush(Qt.NoBrush)
         painter.drawRect(self.rect)
 
-    # فعال کردن Resize از دستگیره‌ها
     def mousePressEvent(self, event):
         pos = event.pos()
         for i, handle in enumerate(self.handles):
@@ -75,11 +75,12 @@ class ResizableOverlay(QWidget):
                 self.rect_start = QRect(self.rect)
                 return
 
-        # وسط قاب جابجایی آزاد
+
         if self.rect.contains(pos):
             self.dragging = True
             self.drag_start = event.globalPos()
             self.rect_start = QRect(self.rect)
+#H1ddenZ0ne
 
     def mouseMoveEvent(self, event):
         if self.resizing:
@@ -97,7 +98,8 @@ class ResizableOverlay(QWidget):
                 r.setBottomRight(r.bottomRight() + QPoint(dx, dy))
             self.rect = r.normalized()
             self.label.resize(self.rect.width(), self.rect.height())
-            # به‌روزرسانی موقعیت دستگیره‌ها
+#H1ddenZ0ne
+
             self.update_handles()
             self.update()
         elif self.dragging:
@@ -116,7 +118,7 @@ class ResizableOverlay(QWidget):
             handle.setGeometry(corner.x()-self.HANDLE_SIZE//2, corner.y()-self.HANDLE_SIZE//2,
                                self.HANDLE_SIZE, self.HANDLE_SIZE)
 
-# ===== Login قبل از برنامه =====
+
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -148,22 +150,22 @@ class LoginWindow(QWidget):
     def start_translator_app(self):
         self.translator_app = TranslatorApp()
 
-# ===== برنامه اصلی ترجمه =====
+
 class TranslatorApp:
     def __init__(self):
         self.app = QApplication.instance() or QApplication(sys.argv)
-        # Overlayها در حالت تنظیم اولیه
+
         self.red_frame = ResizableOverlay("red", "متن انگلیسی", w=800, h=150, y_offset=200)
         self.green_frame = ResizableOverlay("green", "ترجمه فارسی", w=800, h=150, y_offset=50)
 
-        # دکمه شروع
+
         self.start_btn = QPushButton("شروع ترجمه")
         self.start_btn.setFixedSize(200,50)
         self.start_btn.move(50,50)
         self.start_btn.show()
         self.start_btn.clicked.connect(self.start_translation)
 
-        # سایر تنظیمات
+
         self.translator = Translator()
         self.sct = mss()
         self.last_text = ""
@@ -173,14 +175,14 @@ class TranslatorApp:
 
     def start_translation(self):
         self.start_btn.hide()
-        # وسط Overlayها به بازی عبور دهد
+
         self.red_frame.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.green_frame.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        # Timer و Thread ترجمه شروع شوند
+
         self.timer.timeout.connect(self.capture_text)
         self.timer.start(300)
         self.translate_thread.start()
-
+#H1ddenZ0ne
     def capture_text(self):
         try:
             monitor = {
@@ -214,3 +216,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     login = LoginWindow()
     sys.exit(app.exec_())
+
